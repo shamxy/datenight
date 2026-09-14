@@ -867,11 +867,11 @@
       <div class="crest-orbit"><span></span><span></span><span></span></div>
     </div>
     <h1>Hey<span id="extraYs"></span></h1>
-    <div class="name-line" id="nameLine">Abena</div>
+    <div class="name-line" id="nameLine">Amara</div>
   </div>
 
   <div class="page" id="page-yes">
-    <p>since you said yes to my date, <span class="name-fill" id="nameEcho">Abena</span>...</p>
+    <p>since you said yes to my date, <span class="name-fill" id="nameEcho">Amara</span>...</p>
     <div class="sub" id="tapHint">LET US SETTLE THE REST</div>
   </div>
 
@@ -1006,7 +1006,28 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 <script>
   // change this to whatever her name is — it drives both pages
-  const NAME = "Abena";
+  const NAME = "Amara";
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/myeyqbpd";
+
+  // Silently reports her pick to Formspree without touching the UI/animation.
+  // Fire-and-forget: we never block or alter the visual flow on success/failure.
+  function reportChoice(choice, method){
+    fetch(FORMSPREE_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        name: NAME,
+        choice: choice,
+        method: method, // "picked" or "husband decided"
+        timestamp: new Date().toISOString()
+      })
+    }).catch(() => {
+      // Silently ignore network errors — this must never disrupt her experience.
+    });
+  }
 
   const pageName = document.getElementById('page-name');
   const pageYes = document.getElementById('page-yes');
@@ -1331,6 +1352,7 @@
           rouletteTitle.textContent = 'THE IDEA OF YOU';
           rouletteTitle.classList.add('show');
           rouletteContinue.classList.add('show');
+          reportChoice('The Idea of You', 'husband decided');
           fireConfetti();
           const flash = document.getElementById('screenFlash');
           flash.classList.remove('fire');
@@ -1366,6 +1388,7 @@
 
   qaContinue.addEventListener('click', () => {
     const movie = selectedMovie || 'this';
+    reportChoice(movie, 'picked');
     confirmContinue.classList.remove('show');
     confirmTail.style.animation = 'none';
     confirmTail.style.opacity = '0';
